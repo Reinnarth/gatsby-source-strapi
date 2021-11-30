@@ -55,11 +55,26 @@ const addDynamicZoneFieldsToSchema = ({ type, items, actions, schema }) => {
 
 exports.sourceNodes = async (
   { store, actions, cache, reporter, getNode, getNodes, createNodeId, createContentDigest, schema },
-  { apiURL = 'http://localhost:1337', loginData = {}, queryLimit = 100, ...options }
+  {
+    apiURL = 'http://localhost:1337',
+    loginData = {},
+    queryLimit = 100,
+    markdownImages = {},
+    ...options
+  }
 ) => {
   const { createNode, deleteNode, touchNode } = actions;
 
   const jwtToken = await authentication({ loginData, reporter, apiURL });
+
+  // Start activity, Strapi data fetching
+  const fetchActivity = reporter.activityTimer(`Fetched Strapi Data`);
+  fetchActivity.start();
+
+  const collectionTypes = (options.collectionTypes || []).map(contentTypeToTypeInfo);
+  const singleTypes = (options.singleTypes || []).map(singleTypeToTypeInfo);
+
+  const types = [...collectionTypes, ...singleTypes];
 
   const ctx = {
     store,
@@ -74,17 +89,9 @@ exports.sourceNodes = async (
     touchNode,
     createContentDigest,
     schema,
+    markdownImages,
+    types,
   };
-
-  // Start activity, Strapi data fetching
-  const fetchActivity = reporter.activityTimer(`Fetched Strapi Data`);
-  fetchActivity.start();
-
-  const collectionTypes = (options.collectionTypes || []).map(contentTypeToTypeInfo);
-  const singleTypes = (options.singleTypes || []).map(singleTypeToTypeInfo);
-
-  const types = [...collectionTypes, ...singleTypes];
-
   // Execute the promises
   const entities = await Promise.all(types.map((type) => fetchEntities(type, ctx)));
 
