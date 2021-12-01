@@ -131,7 +131,7 @@ const parseImagesFromMarkdown = async (item, ctx, key) => {
 };
 
 const extractFields = async (item, ctx, index) => {
-  const { shouldParseForImages } = markdownImages(ctx.markdownImages, ctx.type[index]);
+  const { shouldParseForImages } = markdownImages(ctx.markdownImages, ctx.types[index]);
 
   if (isImage(item)) {
     return extractImage(item, ctx);
