@@ -145,7 +145,7 @@ const extractFields = async (item, ctx, index) => {
     return;
   }
 
-  if (shouldParseForImages(item)) {
+  if (!!item && shouldParseForImages(item)) {
     Object.keys(item).forEach((key) => parseImagesFromMarkdown(item, ctx, key));
 
     return;
