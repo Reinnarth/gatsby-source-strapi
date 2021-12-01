@@ -1,8 +1,8 @@
 import { has, isObject } from 'lodash/fp';
 import { createRemoteFileNode } from 'gatsby-source-filesystem';
-import commonmark from 'commonmark';
+import { Parser } from 'commonmark';
 
-const reader = new commonmark.Parser();
+const reader = new Parser();
 
 const isImage = has('mime');
 const getUpdatedAt = (image) => image.updatedAt || image.updated_at;
