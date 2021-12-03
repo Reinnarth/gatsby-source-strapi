@@ -21,7 +21,7 @@ function markdownImages(options, type) {
 }
 
 const extractImage = async (image, ctx) => {
-  const { apiURL, store, cache, createNode, createNodeId, touchNode, getNode, auth } = ctx;
+  const { apiURL, store, cache, createNode, createNodeId, touchNode, getNode, jwtToken } = ctx;
 
   let fileNodeID;
 
@@ -46,7 +46,7 @@ const extractImage = async (image, ctx) => {
       cache,
       createNode,
       createNodeId,
-      auth,
+      auth: jwtToken,
     });
 
     if (fileNode) {
@@ -100,6 +100,7 @@ const parseImagesFromMarkdown = async (item, ctx, key) => {
             store: ctx.store,
             cache: ctx.cache,
             createNode: ctx.createNode,
+            createNodeId: ctx.createNodeId,
             auth: ctx.jwtToken,
           });
 
