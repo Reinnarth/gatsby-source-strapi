@@ -23,7 +23,7 @@ const singleTypeToTypeInfo = (singleType) => toTypeInfo(singleType, { single: tr
 
 const fetchEntities = async (entityDefinition, ctx) => {
   const entities = await fetchData(entityDefinition, ctx);
-  await normalize.downloadMediaFiles(entities, ctx);
+  await normalize.downloadMediaFiles(entities, ctx, entityDefinition.name);
 
   return entities;
 };

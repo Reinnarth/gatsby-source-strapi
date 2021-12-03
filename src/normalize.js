@@ -16,6 +16,7 @@ function markdownImages(options, type) {
 
   return {
     shouldParseForImages,
+    fieldsToParse,
   };
 }
 
@@ -65,6 +66,7 @@ const extractImage = async (image, ctx) => {
 
 const parseImagesFromMarkdown = async (item, ctx, key) => {
   const field = item[key];
+  if (!field) return;
   const parsed = reader.parse(field);
   const walker = parsed.walker();
   let event, node;
@@ -130,8 +132,12 @@ const parseImagesFromMarkdown = async (item, ctx, key) => {
   }
 };
 
-const extractFields = async (item, ctx, index) => {
-  const { shouldParseForImages } = markdownImages(ctx.markdownImages, ctx.types[index]);
+const extractFields = async (item, ctx, entityType) => {
+  const existingEntityType = ctx.types.find((el) => el.name === entityType);
+  const { shouldParseForImages, fieldsToParse } = markdownImages(
+    ctx.markdownImages,
+    existingEntityType?.name || undefined
+  );
 
   if (isImage(item)) {
     return extractImage(item, ctx);
@@ -145,16 +151,11 @@ const extractFields = async (item, ctx, index) => {
     return;
   }
 
-  if (!!item && shouldParseForImages(item)) {
-    Object.keys(item).forEach(async (key) => {
-      await parseImagesFromMarkdown(item, ctx, key);
-    });
-
-    return;
-  }
-
   if (isObject(item)) {
     for (const key in item) {
+      if (shouldParseForImages(item) && fieldsToParse.includes(key)) {
+        await parseImagesFromMarkdown(item, ctx, key);
+      }
       await extractFields(item[key], ctx);
     }
 
@@ -174,6 +175,6 @@ exports.isDynamicZone = (node) => {
 };
 
 // Downloads media from image type fields
-exports.downloadMediaFiles = async (entities, ctx) => {
-  return Promise.all(entities.map((entity, index) => extractFields(entity, ctx, index)));
+exports.downloadMediaFiles = async (entities, ctx, entityType) => {
+  return Promise.all(entities.map((entity) => extractFields(entity, ctx, entityType)));
 };
