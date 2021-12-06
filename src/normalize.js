@@ -87,7 +87,7 @@ const parseImagesFromMarkdown = async (item, ctx, key) => {
       if (cacheMediaData) {
         fileNodeID = cacheMediaData.fileNodeID;
         fileNodeBase = cacheMediaData.fileNodeBase;
-        ctx.touchNode({ nodeId: cacheMediaData.fileNodeID });
+        ctx.touchNode(ctx.getNode(fileNodeID));
       }
 
       if (!fileNodeID) {
